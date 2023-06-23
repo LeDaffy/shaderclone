@@ -1,0 +1,12 @@
+
+[Tasks]
+- [x] Hello world
+- [x] GLFW Window
+- [x] Compile with glad
+- [x] hello clear
+- [ ] Hello triangle
+- [ ] Hello shader
+- [ ] 
+- [ ] 
+- [ ] Rectangle
+- [ ] 5 rectangles
