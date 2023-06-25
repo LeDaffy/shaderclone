@@ -1,0 +1,3 @@
+[submodule "C-Collections"]
+	path = C-Collections
+	url = https://github.com/LeDaffy/C-Collections.git
