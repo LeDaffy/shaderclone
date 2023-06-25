@@ -2,8 +2,10 @@
 in vec4 pos;
 out vec4 FragColor;
 
+uniform float iTime;
+
 void main()
 {
     // FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    FragColor = pos;
+    FragColor = pos * sin(3*iTime);
 } 

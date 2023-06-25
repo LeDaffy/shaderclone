@@ -16,7 +16,8 @@ find_package(OpenGL REQUIRED)
 add_subdirectory(glad)
 add_subdirectory(tiny_engine/geo)
 add_subdirectory(C-Collections/collections)
+add_subdirectory(tiny_engine/shaders)
 
 
-target_link_libraries(flappyc ${OPENGL_LIBRARIES} glfw glad collections geo)
+target_link_libraries(flappyc ${OPENGL_LIBRARIES} glfw glad collections geo te_shader)
 

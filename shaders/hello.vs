@@ -6,4 +6,5 @@ void main()
 {
     pos = vec4(aPos.xyz / 0.5, 1.0);
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    ;
 }
