@@ -7,7 +7,7 @@
 #include <sys/types.h>
 
 #include <cglm/cglm.h>
-#include <collections/vec.h>
+#include <collections/vec.h> 
 #include <collections/d_string.h>
 #include <te/geo/triangle.h>
 #include <te/geo/quad.h>
@@ -17,10 +17,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
 
-int main()
+int main(int argc, char** argv)
 {
     GLFWwindow* window_configure()
     {
@@ -67,7 +67,7 @@ int main()
             (vec3){ 0.0f,  0.5f, 0.0f},
             &vertices);
 
-    te_quad screen = rect_new((float[3]){0.0f, 0.0f, 0.0f}, 0.5f, 0.5f);
+    te_quad screen = rect_new((float[3]){0.0f, 0.0f, 0.0f}, 2.0f, 2.0f);
     GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -105,18 +105,66 @@ int main()
     // render loop
     // -----------
     //
-    void getFileCreationTime(char *path) {
-        struct stat attr;
-        stat(path, &attr);
-        printf("Last modified time: %s", ctime(&attr.st_mtime));
-    }
+    struct stat attr;
+    stat("../shaders/hello.fs", &attr);
+    time_t time_since_touched   = attr.st_mtime;
+    time_t time_since_touched_2 = attr.st_mtime;
+    double delta_time = 0.0;
     while (!glfwWindowShouldClose(window))
     {
-        getFileCreationTime("../shaders/hello.vs");
         float iTime = glfwGetTime();
         int vertexColorLocation = glGetUniformLocation(shaderProgram, "iTime");
-        glUseProgram(shaderProgram);
         glUniform1f(vertexColorLocation, iTime);
+
+        int iResolution = glGetUniformLocation(shaderProgram, "iResolution");
+        glUniform2ui(iResolution, SCR_WIDTH, SCR_HEIGHT);
+
+        // get time
+        stat("../shaders/hello.fs", &attr);
+        time_since_touched_2 = attr.st_mtime;
+
+        delta_time = difftime(time_since_touched_2, time_since_touched);
+        // if the file was just written to
+        if (delta_time > 0.1) {
+            time_since_touched   = time_since_touched_2; // set the new touch time
+            delta_time = 0.0;
+
+            //delete the program
+            glDeleteProgram(shaderProgram);
+
+            //recompile
+            shaderProgram = shader_new("../shaders/hello.vs",
+                    "../shaders/hello.fs", 
+                    &shader_errors);
+
+            // while errors
+            while (shader_errors) {
+                // WAIT FOR FILE TOUCH
+                //get time
+                stat("../shaders/hello.fs", &attr);
+                time_since_touched   = attr.st_mtime;
+                time_since_touched_2 = time_since_touched;
+                delta_time = 100; // delta is large
+
+                // until the file has been touched
+                do {
+                    stat("../shaders/hello.fs", &attr); //get time
+                    time_since_touched_2 = attr.st_mtime;
+                    delta_time = difftime(time_since_touched_2, time_since_touched);
+                    // printf("DTIME: %lf\n", delta_time);
+                } while (delta_time < .1);
+
+
+                glDeleteProgram(shaderProgram);
+                shaderProgram = shader_new("../shaders/hello.vs",
+                        "../shaders/hello.fs", 
+                        &shader_errors);
+            }
+            glUseProgram(shaderProgram);
+            printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        }
+        //printf("delta time %lf\n", delta_time);
+
         // input
         // -----
         processInput(window);
@@ -159,4 +207,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+    SCR_HEIGHT = height;
+    SCR_WIDTH = width;
 }
